@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Task, Comment, User as UserType, Approval } from '@/lib/types'
-import { getCurrentUser, getUsers, updateTask, getTasks, getApprovals, deleteTask, uploadTaskFile, deleteTaskFile, addTaskComment } from '@/lib/storage'
+import { getCurrentUser, getUsers, updateTask, getTasks, getApprovals, deleteTask, uploadTaskFile, deleteTaskFile, addTaskComment, updateTaskComment, deleteTaskComment } from '@/lib/storage'
 
 interface TaskDetailModalProps {
   task: Task | null
@@ -34,6 +34,8 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
   const [currentTask, setCurrentTask] = useState<Task | null>(task)
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
+  const [editingCommentContent, setEditingCommentContent] = useState('')
 
   const currentUser = getCurrentUser()
 
@@ -116,6 +118,67 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
     }
   }
 
+  const handleEditComment = (commentId: string, content: string) => {
+    setEditingCommentId(commentId)
+    setEditingCommentContent(content)
+  }
+
+  const handleUpdateComment = async (commentId: string) => {
+    if (!editingCommentContent.trim()) return
+
+    try {
+      const success = await updateTaskComment(task.id, commentId, editingCommentContent)
+
+      if (success) {
+        setEditingCommentId(null)
+        setEditingCommentContent('')
+
+        // Refresh the task to get updated comments
+        const { getTask } = await import('@/lib/storage')
+        const updatedTask = await getTask(task.id)
+        if (updatedTask) {
+          setCurrentTask(updatedTask)
+        }
+
+        onTaskUpdated?.()
+      } else {
+        alert('댓글 수정에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('Failed to update comment:', error)
+      alert('댓글 수정 중 오류가 발생했습니다.')
+    }
+  }
+
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null)
+    setEditingCommentContent('')
+  }
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm('댓글을 삭제하시겠습니까?')) return
+
+    try {
+      const success = await deleteTaskComment(task.id, commentId)
+
+      if (success) {
+        // Refresh the task to get updated comments
+        const { getTask } = await import('@/lib/storage')
+        const updatedTask = await getTask(task.id)
+        if (updatedTask) {
+          setCurrentTask(updatedTask)
+        }
+
+        onTaskUpdated?.()
+      } else {
+        alert('댓글 삭제에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
+      alert('댓글 삭제 중 오류가 발생했습니다.')
+    }
+  }
+
   const handleSaveEdit = async () => {
     if (!editedTask) return
 
@@ -184,6 +247,8 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
       setEditedTask(null)
       setSelectedFiles([])
       setUploading(false)
+      setEditingCommentId(null)
+      setEditingCommentContent('')
     }
     onOpenChange(open)
   }
@@ -531,17 +596,70 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
             </h3>
 
             <div className="space-y-4">
-              {currentTask.comments?.map((comment) => (
-                <div key={comment.id} className="rounded-md border border-border bg-card p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="font-medium text-sm">{getUserName(comment.createdBy)}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDate(comment.createdAt)}
-                    </span>
+              {currentTask.comments?.map((comment) => {
+                const isCommentAuthor = currentUser?.id === comment.createdBy
+                const isEditingThis = editingCommentId === comment.id
+
+                return (
+                  <div key={comment.id} className="rounded-md border border-border bg-card p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="font-medium text-sm">{getUserName(comment.createdBy)}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(comment.createdAt)}
+                        </span>
+                        {isCommentAuthor && !isEditingThis && (
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditComment(comment.id, comment.content)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Edit2 className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteComment(comment.id)}
+                              className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {isEditingThis ? (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={editingCommentContent}
+                          onChange={(e) => setEditingCommentContent(e.target.value)}
+                          rows={3}
+                          className="text-sm"
+                        />
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCancelEditComment}
+                          >
+                            취소
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleUpdateComment(comment.id)}
+                          >
+                            수정
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm">{comment.content}</p>
+                    )}
                   </div>
-                  <p className="text-sm">{comment.content}</p>
-                </div>
-              ))}
+                )
+              })}
 
               <div className="space-y-2">
                 <Textarea

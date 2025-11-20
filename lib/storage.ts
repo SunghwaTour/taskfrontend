@@ -442,6 +442,26 @@ export async function addTaskComment(taskId: string, content: string): Promise<b
   }
 }
 
+export async function updateTaskComment(taskId: string, commentId: string, content: string): Promise<boolean> {
+  try {
+    await apiClient.patch(`/tasks/${taskId}/comments/${commentId}/`, { content });
+    return true;
+  } catch (error) {
+    console.error('Failed to update comment:', error);
+    return false;
+  }
+}
+
+export async function deleteTaskComment(taskId: string, commentId: string): Promise<boolean> {
+  try {
+    await apiClient.delete(`/tasks/${taskId}/comments/${commentId}/`);
+    return true;
+  } catch (error) {
+    console.error('Failed to delete comment:', error);
+    return false;
+  }
+}
+
 export async function uploadTaskFile(
   taskId: string,
   file: File,
