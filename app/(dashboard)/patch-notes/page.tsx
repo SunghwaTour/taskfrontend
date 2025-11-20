@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AnnouncementCreateModal } from '@/components/announcement-create-modal'
 import { AnnouncementDetailModal } from '@/components/announcement-detail-modal'
-import { getAnnouncements, getUsers, getTasks, getApprovals } from '@/lib/storage'
+import { getAnnouncements, getUsers, getTasks, getApprovals, getCurrentUser } from '@/lib/storage'
 import { Announcement, AnnouncementType, User, Task, Approval } from '@/lib/types'
 
 export default function AnnouncementsPage() {
@@ -22,6 +22,9 @@ export default function AnnouncementsPage() {
   const [users, setUsers] = useState<User[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [approvals, setApprovals] = useState<Approval[]>([])
+
+  const currentUser = getCurrentUser()
+  const isVisitor = currentUser?.role === 'VISITOR'
 
   const loadAnnouncements = async () => {
     const [allAnnouncements, usersList, tasksList, approvalsList] = await Promise.all([
@@ -101,10 +104,12 @@ export default function AnnouncementsPage() {
             긴급공지와 패치노트를 작성하고 관리하세요
           </p>
         </div>
-        <Button onClick={() => setCreateModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          공지 작성
-        </Button>
+        {!isVisitor && (
+          <Button onClick={() => setCreateModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            공지 작성
+          </Button>
+        )}
       </div>
 
       <div className="mb-4">

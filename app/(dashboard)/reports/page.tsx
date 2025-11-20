@@ -35,7 +35,7 @@ export default function ReportsPage() {
     const reportsList = Array.isArray(allReports) ? allReports : []
     const visibleReports = user && (user.role === 'TEAM_LEADER' || user.role === 'CEO')
       ? reportsList
-      : reportsList.filter(report => report.createdBy === user?.id)
+      : reportsList.filter(report => report.createdBy === user?.id) // MEMBER and VISITOR only see their own
 
     // Sort by creation date, newest first
     const sortedReports = visibleReports.sort(
@@ -105,10 +105,12 @@ export default function ReportsPage() {
               : '본인의 주간 및 월간 업무 보고서를 작성하고 관리하세요'}
           </p>
         </div>
-        <Button onClick={() => setCreateModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          보고서 작성
-        </Button>
+        {currentUser?.role !== 'VISITOR' && (
+          <Button onClick={() => setCreateModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            보고서 작성
+          </Button>
+        )}
       </div>
 
       <div className="mb-4">

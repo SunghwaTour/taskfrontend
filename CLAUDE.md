@@ -76,17 +76,21 @@ lib/
 
 ### Authentication & Authorization
 
-- **Login**: Username + password authentication via localStorage (lib/storage.ts)
-- **Default Users** (password: "0000" for all):
-  - 이주성 (TEAM_LEADER)
-  - 김형주 (CEO)
-  - 최시온 (TEAM_LEADER)
-  - 신태환, 김예나, 오준희 (MEMBER)
-- **Roles**: `CEO`, `TEAM_LEADER`, `MEMBER`
+- **Login**: TRP API-based authentication with 2-step process:
+  1. Authenticate with TRP API (`http://api.kingbuserp.link/login`)
+  2. Map TRP user to Kingbus role via backend (`/api/auth/trp-login/`)
+- **TRP Requirements**: User must have '관리자' or '최고관리자' role in TRP
+- **User Role Mapping** (backend/apps/accounts/role_mapping.py):
+  - **CEO**: 김형주
+  - **TEAM_LEADER**: 이주성, 최시온
+  - **MEMBER**: 신태환, 김예나, 오준희, 이광훈, 이규빈, 전예나, 유수현, 유승원, 민정훈, 민지호, 이윤수, 김지수, 최윤아
+  - **VISITOR**: All other TRP admin users (read-only access)
+- **Roles**: `CEO`, `TEAM_LEADER`, `MEMBER`, `VISITOR`
 - **Protected Routes**: All routes under `(dashboard)` require authentication
 - **Route Guards**:
-  - Dashboard layout (app/(dashboard)/layout.tsx:13-18) redirects to `/` if not logged in
-  - Settings page restricted to CEO/TEAM_LEADER roles (components/app-sidebar.tsx:22)
+  - Dashboard layout (app/(dashboard)/layout.tsx) redirects to `/` if not logged in
+  - Settings page restricted to CEO/TEAM_LEADER roles
+  - VISITOR role has read-only access (no create/edit/delete permissions)
 
 ### Data Layer (lib/storage.ts)
 

@@ -21,7 +21,7 @@ const menuItems = [
   { title: '결재', icon: CheckSquare, url: '/approvals' },
   { title: '보고서', icon: FileText, url: '/reports' },
   { title: '공지', icon: Package, url: '/patch-notes' },
-  { title: '설정', icon: Settings, url: '/settings', requiresRole: ['CEO', 'TEAM_LEADER'] },
+  { title: '설정', icon: Settings, url: '/settings', requiresRole: ['CEO', 'TEAM_LEADER'] as const },
 ]
 
 export function AppSidebar() {

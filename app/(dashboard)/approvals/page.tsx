@@ -37,8 +37,9 @@ export default function ApprovalsPage() {
     setTasks(Array.isArray(tasksList) ? tasksList : [])
     setUsers(Array.isArray(usersList) ? usersList : [])
 
-    // If user is a team member, only show their own approvals
-    if (user?.role === 'MEMBER') {
+    // Filter approvals based on user role
+    if (user?.role === 'MEMBER' || user?.role === 'VISITOR') {
+      // Team members and visitors only see their own approvals
       const userApprovals = Array.isArray(allApprovals)
         ? allApprovals.filter((a) => a.createdBy === user.id)
         : []

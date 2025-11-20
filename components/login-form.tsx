@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { login } from '@/lib/storage'
 
 export default function LoginForm() {
-  const [name, setName] = useState('')
+  const [userId, setUserId] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -21,8 +21,8 @@ export default function LoginForm() {
     setIsLoading(true)
 
     try {
-      console.log('Attempting login for:', name)
-      const user = await login(name, password)
+      console.log('Attempting TRP login for:', userId)
+      const user = await login(userId, password)
       console.log('Login response:', user)
 
       if (user) {
@@ -30,7 +30,7 @@ export default function LoginForm() {
         router.push('/tasks')
       } else {
         console.log('Login failed: user is null')
-        setError('이름 또는 비밀번호가 올바르지 않습니다.')
+        setError('TRP 인증에 실패했습니다. 아이디, 비밀번호를 확인하거나 관리자 권한이 있는지 확인해주세요.')
       }
     } catch (err) {
       console.error('Login error:', err)
@@ -49,13 +49,13 @@ export default function LoginForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">이름</Label>
+            <Label htmlFor="userId">TRP 아이디</Label>
             <Input
-              id="name"
+              id="userId"
               type="text"
-              placeholder="이주성"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="사용자 ID"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
               required
             />
           </div>
@@ -64,7 +64,7 @@ export default function LoginForm() {
             <Input
               id="password"
               type="password"
-              placeholder="0000"
+              placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

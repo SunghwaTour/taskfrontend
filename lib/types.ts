@@ -1,4 +1,4 @@
-export type UserRole = 'CEO' | 'TEAM_LEADER' | 'MEMBER'
+export type UserRole = 'CEO' | 'TEAM_LEADER' | 'MEMBER' | 'VISITOR'
 
 export interface User {
   id: string
@@ -127,4 +127,33 @@ export interface Announcement {
   items?: PatchNoteItem[]
   createdBy: string
   createdAt: string
+}
+
+// TRP API types
+export interface TRPAuthenticatedUser {
+  user_id: string
+  name: string
+  role: string  // '운전원', '관리자', '최고관리자' 등
+  position: string  // '팀장', '대리' 등
+}
+
+export interface TRPLoginResponse {
+  result: 'true' | 'false'
+  data: {
+    access: string
+    refresh: string
+    authenticatedUser: TRPAuthenticatedUser
+    authenticated_user: TRPAuthenticatedUser
+  } | number
+  message: string | Record<string, string[]>
+}
+
+export interface TRPRefreshResponse {
+  result: 'true' | 'false'
+  data: {
+    access: string
+    refresh: string
+    authenticated_user: TRPAuthenticatedUser
+  } | number
+  message: string | Record<string, string[]>
 }

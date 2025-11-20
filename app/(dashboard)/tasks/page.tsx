@@ -9,7 +9,7 @@ import { TaskCreateModal } from '@/components/task-create-modal'
 import { TaskKanban } from '@/components/task-kanban'
 import { TaskList } from '@/components/task-list'
 import { TaskDetailModal } from '@/components/task-detail-modal'
-import { getTasks } from '@/lib/storage'
+import { getTasks, getCurrentUser } from '@/lib/storage'
 import { Task } from '@/lib/types'
 
 export default function TasksPage() {
@@ -20,6 +20,9 @@ export default function TasksPage() {
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([])
   const [navigationTaskId, setNavigationTaskId] = useState<string | null>(null)
   const [navigationModalOpen, setNavigationModalOpen] = useState(false)
+
+  const currentUser = getCurrentUser()
+  const isVisitor = currentUser?.role === 'VISITOR'
 
   const loadTasks = async () => {
     try {
@@ -105,10 +108,12 @@ export default function TasksPage() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button onClick={() => setCreateModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            업무 등록
-          </Button>
+          {!isVisitor && (
+            <Button onClick={() => setCreateModalOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              업무 등록
+            </Button>
+          )}
         </div>
       </div>
 
