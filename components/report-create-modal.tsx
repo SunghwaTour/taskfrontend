@@ -4,13 +4,11 @@ import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -18,9 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Report, ReportType, Task } from '@/lib/types'
-import { addReport, getTasks, getCurrentUser } from '@/lib/storage'
+import { RichTextEditor } from '@/components/ui/rich-text-editor'
+import { Report, ReportType } from '@/lib/types'
+import { addReport, getCurrentUser } from '@/lib/storage'
 import {
   getAvailableWeeks,
   getAvailableMonths,
@@ -43,28 +41,9 @@ export function ReportCreateModal({
   const [selectedWeek, setSelectedWeek] = useState<string>('')
   const [selectedMonth, setSelectedMonth] = useState<string>('')
   const [content, setContent] = useState('')
-  const [selectedTasks, setSelectedTasks] = useState<string[]>([])
-  const [allTasks, setAllTasks] = useState<Task[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const currentUser = getCurrentUser()
-
-  useEffect(() => {
-    const loadTasks = async () => {
-      const tasksList = await getTasks()
-      setAllTasks(Array.isArray(tasksList) ? tasksList : [])
-    }
-
-    if (open) {
-      loadTasks()
-    }
-  }, [open])
-
-  // Filter tasks where current user is CC'd or is the creator
-  const userTasks = allTasks.filter(
-    (task) =>
-      currentUser &&
-      (task.cc.includes(currentUser.id) || task.createdBy === currentUser.id)
-  )
 
   const availableWeeks = getAvailableWeeks()
   const availableMonths = getAvailableMonths()
@@ -86,6 +65,7 @@ export function ReportCreateModal({
 
     if (!currentUser) return
 
+    setIsSubmitting(true)
     try {
       const newReport: Report = {
         id: Date.now().toString(),
@@ -94,7 +74,7 @@ export function ReportCreateModal({
         ...(reportType === 'WEEKLY'
           ? { weekNumber: selectedWeek }
           : { month: selectedMonth }),
-        tasks: selectedTasks,
+        tasks: [],
         content,
         createdBy: currentUser.id,
         createdAt: new Date().toISOString(),
@@ -105,148 +85,132 @@ export function ReportCreateModal({
       handleClose()
     } catch (error) {
       console.error('Failed to create report:', error)
+      alert('보고서 작성 중 오류가 발생했습니다.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   const handleClose = () => {
     setContent('')
-    setSelectedTasks([])
+    setIsSubmitting(false)
     onOpenChange(false)
-  }
-
-  const toggleTask = (taskId: string) => {
-    setSelectedTasks((prev) =>
-      prev.includes(taskId) ? prev.filter((id) => id !== taskId) : [...prev, taskId]
-    )
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="max-w-[900px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>보고서 작성</DialogTitle>
-          <DialogDescription>주간 또는 월간 보고서를 작성하세요</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="reportType">보고서 유형 *</Label>
-            <Select
-              value={reportType}
-              onValueChange={(v) => setReportType(v as ReportType)}
-            >
-              <SelectTrigger id="reportType">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="WEEKLY">주간 보고서</SelectItem>
-                <SelectItem value="MONTHLY">월간 보고서</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-y-auto">
+            <div className="grid grid-cols-[1fr_300px] gap-6 p-1">
+              {/* Left Column - Editor */}
+              <div className="space-y-4">
+                <RichTextEditor
+                  content={content}
+                  onChange={setContent}
+                  placeholder="보고서 내용을 작성하세요..."
+                  className="h-[500px]"
+                />
+              </div>
 
-          {reportType === 'WEEKLY' ? (
-            <div className="space-y-2">
-              <Label htmlFor="week">주차 선택 *</Label>
-              <Select
-                value={`${selectedYear}-${selectedWeek}`}
-                onValueChange={(v) => {
-                  const [year, week] = v.split('-')
-                  setSelectedYear(year)
-                  setSelectedWeek(week)
-                }}
-              >
-                <SelectTrigger id="week">
-                  <SelectValue placeholder="주차를 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableWeeks.map((week) => (
-                    <SelectItem
-                      key={`${week.year}-${week.weekNumber}`}
-                      value={`${week.year}-${week.weekNumber}`}
-                    >
-                      {week.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <Label htmlFor="month">월 선택 *</Label>
-              <Select
-                value={`${selectedYear}-${selectedMonth}`}
-                onValueChange={(v) => {
-                  const [year, month] = v.split('-')
-                  setSelectedYear(year)
-                  setSelectedMonth(month)
-                }}
-              >
-                <SelectTrigger id="month">
-                  <SelectValue placeholder="월을 선택하세요" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableMonths.map((month) => (
-                    <SelectItem
-                      key={`${month.year}-${month.month}`}
-                      value={`${month.year}-${month.month}`}
-                    >
-                      {month.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+              {/* Right Column - Settings */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="reportType">보고서 유형</Label>
+                  <Select
+                    value={reportType}
+                    onValueChange={(v) => setReportType(v as ReportType)}
+                  >
+                    <SelectTrigger id="reportType">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="WEEKLY">주간 보고서</SelectItem>
+                      <SelectItem value="MONTHLY">월간 보고서</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          <div className="space-y-2">
-            <Label>관련 업무 선택</Label>
-            <div className="max-h-60 space-y-2 overflow-y-auto rounded-md border border-input p-3">
-              {userTasks.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground">
-                  참조되거나 작성한 업무가 없습니다.
-                </p>
-              ) : (
-                userTasks.map((task) => (
-                  <div key={task.id} className="flex items-start space-x-2">
-                    <Checkbox
-                      id={`task-${task.id}`}
-                      checked={selectedTasks.includes(task.id)}
-                      onCheckedChange={() => toggleTask(task.id)}
-                      className="mt-1"
-                    />
-                    <label
-                      htmlFor={`task-${task.id}`}
-                      className="flex-1 cursor-pointer text-sm"
+                {reportType === 'WEEKLY' ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="week">주차 선택</Label>
+                    <Select
+                      value={`${selectedYear}-W${selectedWeek}`}
+                      onValueChange={(v) => {
+                        const [year, week] = v.split('-W')
+                        setSelectedYear(year)
+                        setSelectedWeek(week)
+                      }}
                     >
-                      <div className="font-medium">{task.title}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {task.category} · {task.service}
-                      </div>
-                    </label>
+                      <SelectTrigger id="week">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableWeeks.map((week) => (
+                          <SelectItem
+                            key={week.value}
+                            value={`${week.year}-W${week.weekNumber}`}
+                          >
+                            {week.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                ))
-              )}
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="month">월 선택</Label>
+                    <Select
+                      value={`${selectedYear}-${selectedMonth}`}
+                      onValueChange={(v) => {
+                        const [year, month] = v.split('-')
+                        setSelectedYear(year)
+                        setSelectedMonth(month)
+                      }}
+                    >
+                      <SelectTrigger id="month">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableMonths.map((month) => (
+                          <SelectItem
+                            key={month.value}
+                            value={`${month.year}-${month.month}`}
+                          >
+                            {month.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                <div className="rounded-md bg-muted p-4">
+                  <h4 className="text-sm font-medium mb-2">작성 가이드</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 주요 업무 내용</li>
+                    <li>• 완료된 작업</li>
+                    <li>• 진행 중인 작업</li>
+                    <li>• 이슈 및 개선사항</li>
+                    <li>• 다음 주 계획</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="content">보고서 내용 *</Label>
-            <Textarea
-              id="content"
-              placeholder="보고서 내용을 작성하세요"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={10}
-              required
-            />
-          </div>
-
-          <div className="flex justify-end gap-3">
+          {/* Footer Buttons */}
+          <div className="flex justify-end gap-3 pt-4 border-t mt-4">
             <Button type="button" variant="outline" onClick={handleClose}>
               취소
             </Button>
-            <Button type="submit">작성 완료</Button>
+            <Button type="submit" disabled={isSubmitting || !content.trim()}>
+              {isSubmitting ? '작성 중...' : '작성'}
+            </Button>
           </div>
         </form>
       </DialogContent>
