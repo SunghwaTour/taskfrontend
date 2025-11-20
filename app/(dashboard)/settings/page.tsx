@@ -106,12 +106,14 @@ export default function SettingsPage() {
     CEO: '대표',
     TEAM_LEADER: '팀장',
     MEMBER: '팀원',
+    VISITOR: '방문자',
   }
 
   const roleBadgeColors = {
     CEO: 'bg-red-500',
     TEAM_LEADER: 'bg-blue-500',
     MEMBER: 'bg-gray-500',
+    VISITOR: 'bg-yellow-500',
   }
 
   if (isLoading || !currentUser || !['CEO', 'TEAM_LEADER'].includes(currentUser.role)) {
@@ -182,6 +184,7 @@ export default function SettingsPage() {
                               <SelectItem value="CEO">대표</SelectItem>
                               <SelectItem value="TEAM_LEADER">팀장</SelectItem>
                               <SelectItem value="MEMBER">팀원</SelectItem>
+                              <SelectItem value="VISITOR">방문자</SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>
@@ -209,6 +212,10 @@ export default function SettingsPage() {
                   <li className="flex items-start gap-2">
                     <Badge className="bg-gray-500">팀원</Badge>
                     <span>업무를 생성하고 진행할 수 있습니다.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Badge className="bg-yellow-500">방문자</Badge>
+                    <span>모든 데이터를 조회할 수 있지만, 생성/수정/삭제 권한은 없습니다.</span>
                   </li>
                 </ul>
               </div>

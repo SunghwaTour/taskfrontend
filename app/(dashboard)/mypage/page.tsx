@@ -179,12 +179,14 @@ export default function MyPage() {
     CEO: '대표',
     TEAM_LEADER: '팀장',
     MEMBER: '팀원',
+    VISITOR: '방문자',
   }
 
   const roleBadgeColors = {
     CEO: 'bg-red-500',
     TEAM_LEADER: 'bg-blue-500',
     MEMBER: 'bg-gray-500',
+    VISITOR: 'bg-yellow-500',
   }
 
   if (!currentUser) return null
