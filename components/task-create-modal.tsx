@@ -170,14 +170,14 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1200px] max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[95vw] lg:max-w-[1200px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>새 글 작성</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
           <div className="flex-1 overflow-y-auto">
-            <div className="grid grid-cols-[1fr_400px] gap-6 p-1">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 p-1">
               {/* Left Column - Title & Editor */}
               <div className="space-y-4">
                 <div className="space-y-2">
