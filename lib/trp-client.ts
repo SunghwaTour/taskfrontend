@@ -5,7 +5,7 @@
 
 import type { TRPLoginResponse, TRPRefreshResponse, TRPAuthenticatedUser } from './types';
 
-const TRP_API_BASE_URL = process.env.NEXT_PUBLIC_TRP_API_BASE_URL || 'http://api.kingbuserp.link';
+const TRP_API_BASE_URL = process.env.NEXT_PUBLIC_TRP_API_BASE_URL || 'https://api.kingbuserp.link';
 
 /**
  * Login to TRP API

@@ -77,7 +77,7 @@ lib/
 ### Authentication & Authorization
 
 - **Login**: TRP API-based authentication with 2-step process:
-  1. Authenticate with TRP API (`http://api.kingbuserp.link/login`)
+  1. Authenticate with TRP API (`https://api.kingbuserp.link/login`)
   2. Map TRP user to Kingbus role via backend (`/api/auth/trp-login/`)
 - **TRP Requirements**: User must have '관리자' or '최고관리자' role in TRP
 - **User Role Mapping** (backend/apps/accounts/role_mapping.py):
