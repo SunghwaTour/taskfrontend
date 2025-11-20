@@ -353,9 +353,10 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
                   className="font-mono text-sm"
                 />
               ) : (
-                <div className="whitespace-pre-wrap rounded-md bg-muted p-4 text-sm">
-                  {task.content}
-                </div>
+                <div
+                  className="prose prose-sm max-w-none rounded-md bg-muted p-4"
+                  dangerouslySetInnerHTML={{ __html: task.content }}
+                />
               )}
             </div>
           )}

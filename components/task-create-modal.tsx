@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Upload, UserPlus } from 'lucide-react'
+import { X, Upload } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -260,40 +260,38 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
                 {/* Assignees */}
                 <div className="space-y-2">
                   <Label>담당자 지정</Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <Input
-                        placeholder="담당자 이름"
-                        value={assigneeSearch}
-                        onChange={(e) => setAssigneeSearch(e.target.value)}
-                      />
-                      {assigneeSearch && filteredAssigneeUsers.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
-                          {filteredAssigneeUsers.map(user => (
-                            <button
-                              key={user.id}
-                              type="button"
-                              onClick={() => addAssignee(user)}
-                              className="w-full px-3 py-2 text-left hover:bg-accent text-sm"
-                            >
-                              {user.name} ({user.role})
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <Button type="button" size="icon" variant="outline">
-                      <UserPlus className="h-4 w-4" />
-                    </Button>
+                  <div className="relative">
+                    <Input
+                      placeholder="담당자 이름 검색"
+                      value={assigneeSearch}
+                      onChange={(e) => setAssigneeSearch(e.target.value)}
+                    />
+                    {assigneeSearch && filteredAssigneeUsers.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
+                        {filteredAssigneeUsers.map(user => (
+                          <button
+                            key={user.id}
+                            type="button"
+                            onClick={() => addAssignee(user)}
+                            className="w-full px-3 py-2 text-left hover:bg-accent text-sm"
+                          >
+                            {user.name} ({user.role})
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {selectedAssignees.map(user => (
-                      <Badge key={user.id} variant="secondary" className="gap-1">
+                      <Badge key={user.id} variant="secondary" className="gap-1 pr-1">
                         {user.name}
-                        <X
-                          className="h-3 w-3 cursor-pointer"
+                        <button
+                          type="button"
                           onClick={() => removeAssignee(user.id)}
-                        />
+                          className="ml-1 rounded-sm hover:bg-secondary-foreground/20"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
                       </Badge>
                     ))}
                   </div>
@@ -302,40 +300,38 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
                 {/* CC */}
                 <div className="space-y-2">
                   <Label>참조자 지정</Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <Input
-                        placeholder="참조자 이름"
-                        value={ccSearch}
-                        onChange={(e) => setCCSearch(e.target.value)}
-                      />
-                      {ccSearch && filteredCCUsers.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
-                          {filteredCCUsers.map(user => (
-                            <button
-                              key={user.id}
-                              type="button"
-                              onClick={() => addCC(user)}
-                              className="w-full px-3 py-2 text-left hover:bg-accent text-sm"
-                            >
-                              {user.name} ({user.role})
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <Button type="button" size="icon" variant="outline">
-                      <UserPlus className="h-4 w-4" />
-                    </Button>
+                  <div className="relative">
+                    <Input
+                      placeholder="참조자 이름 검색"
+                      value={ccSearch}
+                      onChange={(e) => setCCSearch(e.target.value)}
+                    />
+                    {ccSearch && filteredCCUsers.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
+                        {filteredCCUsers.map(user => (
+                          <button
+                            key={user.id}
+                            type="button"
+                            onClick={() => addCC(user)}
+                            className="w-full px-3 py-2 text-left hover:bg-accent text-sm"
+                          >
+                            {user.name} ({user.role})
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {selectedCC.map(user => (
-                      <Badge key={user.id} variant="outline" className="gap-1">
+                      <Badge key={user.id} variant="outline" className="gap-1 pr-1">
                         {user.name}
-                        <X
-                          className="h-3 w-3 cursor-pointer"
+                        <button
+                          type="button"
                           onClick={() => removeCC(user.id)}
-                        />
+                          className="ml-1 rounded-sm hover:bg-accent"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
                       </Badge>
                     ))}
                   </div>
