@@ -35,7 +35,7 @@ export function AppSidebar() {
 
   const filteredMenuItems = menuItems.filter((item) => {
     if (item.requiresRole && currentUser) {
-      return item.requiresRole.includes(currentUser.role)
+      return (item.requiresRole as readonly string[]).includes(currentUser.role)
     }
     return true
   })
