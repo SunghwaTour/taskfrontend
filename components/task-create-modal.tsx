@@ -21,7 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
 import { Task, TaskCategory, ServiceType, User } from '@/lib/types'
-import { addTask, getCurrentUser, getUsers, getServices, uploadTaskFile } from '@/lib/storage'
+import { addTask, getCurrentUser, getUsers, getServices, uploadTaskFile, getTasks } from '@/lib/storage'
 
 interface TaskCreateModalProps {
   open: boolean
@@ -39,24 +39,29 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
   const [selectedAssignees, setSelectedAssignees] = useState<User[]>([])
   const [selectedCC, setSelectedCC] = useState<User[]>([])
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [selectedRelatedTasks, setSelectedRelatedTasks] = useState<Task[]>([])
   const [uploading, setUploading] = useState(false)
 
   const [assigneeSearch, setAssigneeSearch] = useState('')
   const [ccSearch, setCCSearch] = useState('')
+  const [relatedTaskSearch, setRelatedTaskSearch] = useState('')
 
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [users, setUsers] = useState<User[]>([])
   const [services, setServices] = useState<ServiceType[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
 
   useEffect(() => {
     const loadData = async () => {
       const user = getCurrentUser()
       const usersList = await getUsers()
       const servicesList = await getServices()
+      const tasksList = await getTasks()
 
       setCurrentUser(user)
       setUsers(Array.isArray(usersList) ? usersList.filter(u => u.role !== 'VISITOR') : [])
       setServices(Array.isArray(servicesList) ? servicesList : [])
+      setTasks(Array.isArray(tasksList) ? tasksList : [])
     }
 
     if (open) {
@@ -80,7 +85,7 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
       const newTask = await addTask({
         title,
         category,
-        relatedTasks: [],
+        relatedTasks: selectedRelatedTasks.map(t => t.id),
         service,
         startDate: startDate || null,
         dueDate: dueDate || null,
@@ -126,8 +131,10 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
     setSelectedAssignees([])
     setSelectedCC([])
     setSelectedFiles([])
+    setSelectedRelatedTasks([])
     setAssigneeSearch('')
     setCCSearch('')
+    setRelatedTaskSearch('')
     setUploading(false)
     onOpenChange(false)
   }
@@ -164,6 +171,17 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
     setSelectedCC(selectedCC.filter(u => u.id !== userId))
   }
 
+  const addRelatedTask = (task: Task) => {
+    if (!selectedRelatedTasks.find(t => t.id === task.id)) {
+      setSelectedRelatedTasks([...selectedRelatedTasks, task])
+    }
+    setRelatedTaskSearch('')
+  }
+
+  const removeRelatedTask = (taskId: string) => {
+    setSelectedRelatedTasks(selectedRelatedTasks.filter(t => t.id !== taskId))
+  }
+
   const filteredAssigneeUsers = users.filter(u =>
     u.name.toLowerCase().includes(assigneeSearch.toLowerCase()) &&
     !selectedAssignees.find(s => s.id === u.id)
@@ -172,6 +190,11 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
   const filteredCCUsers = users.filter(u =>
     u.name.toLowerCase().includes(ccSearch.toLowerCase()) &&
     !selectedCC.find(s => s.id === u.id)
+  )
+
+  const filteredRelatedTasks = tasks.filter(t =>
+    t.title.toLowerCase().includes(relatedTaskSearch.toLowerCase()) &&
+    !selectedRelatedTasks.find(s => s.id === t.id)
   )
 
   return (
@@ -334,6 +357,49 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
                         <button
                           type="button"
                           onClick={() => removeCC(user.id)}
+                          className="ml-1 rounded-sm hover:bg-accent"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Related Tasks */}
+                <div className="space-y-2">
+                  <Label>연관된 업무</Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="업무 제목 검색"
+                      value={relatedTaskSearch}
+                      onChange={(e) => setRelatedTaskSearch(e.target.value)}
+                    />
+                    {relatedTaskSearch && filteredRelatedTasks.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
+                        {filteredRelatedTasks.map(task => (
+                          <button
+                            key={task.id}
+                            type="button"
+                            onClick={() => addRelatedTask(task)}
+                            className="w-full px-3 py-2 text-left hover:bg-accent text-sm border-b border-border last:border-b-0"
+                          >
+                            <div className="font-medium">{task.title}</div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {task.category} · {task.service} · {task.status}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedRelatedTasks.map(task => (
+                      <Badge key={task.id} variant="outline" className="gap-1 pr-1">
+                        {task.title}
+                        <button
+                          type="button"
+                          onClick={() => removeRelatedTask(task.id)}
                           className="ml-1 rounded-sm hover:bg-accent"
                         >
                           <X className="h-3 w-3" />

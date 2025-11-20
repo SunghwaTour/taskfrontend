@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { X } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -8,6 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -16,9 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
-import { Report, ReportType } from '@/lib/types'
-import { addReport, getCurrentUser } from '@/lib/storage'
+import { Report, ReportType, Task } from '@/lib/types'
+import { addReport, getCurrentUser, getTasks } from '@/lib/storage'
 import {
   getAvailableWeeks,
   getAvailableMonths,
@@ -42,6 +45,9 @@ export function ReportCreateModal({
   const [selectedMonth, setSelectedMonth] = useState<string>('')
   const [content, setContent] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedRelatedTasks, setSelectedRelatedTasks] = useState<Task[]>([])
+  const [relatedTaskSearch, setRelatedTaskSearch] = useState('')
+  const [tasks, setTasks] = useState<Task[]>([])
 
   const currentUser = getCurrentUser()
 
@@ -49,14 +55,23 @@ export function ReportCreateModal({
   const availableMonths = getAvailableMonths()
 
   useEffect(() => {
-    if (open && reportType === 'WEEKLY') {
-      const currentWeek = getCurrentWeek()
-      setSelectedYear(currentWeek.year.toString())
-      setSelectedWeek(currentWeek.weekNumber.toString())
-    } else if (open && reportType === 'MONTHLY') {
-      const today = new Date()
-      setSelectedYear(today.getFullYear().toString())
-      setSelectedMonth((today.getMonth() + 1).toString())
+    const loadData = async () => {
+      if (reportType === 'WEEKLY') {
+        const currentWeek = getCurrentWeek()
+        setSelectedYear(currentWeek.year.toString())
+        setSelectedWeek(currentWeek.weekNumber.toString())
+      } else if (reportType === 'MONTHLY') {
+        const today = new Date()
+        setSelectedYear(today.getFullYear().toString())
+        setSelectedMonth((today.getMonth() + 1).toString())
+      }
+
+      const tasksList = await getTasks()
+      setTasks(Array.isArray(tasksList) ? tasksList : [])
+    }
+
+    if (open) {
+      loadData()
     }
   }, [open, reportType])
 
@@ -74,7 +89,7 @@ export function ReportCreateModal({
         ...(reportType === 'WEEKLY'
           ? { weekNumber: selectedWeek }
           : { month: selectedMonth }),
-        tasks: [],
+        tasks: selectedRelatedTasks.map(t => t.id),
         content,
         createdBy: currentUser.id,
         createdAt: new Date().toISOString(),
@@ -93,9 +108,27 @@ export function ReportCreateModal({
 
   const handleClose = () => {
     setContent('')
+    setSelectedRelatedTasks([])
+    setRelatedTaskSearch('')
     setIsSubmitting(false)
     onOpenChange(false)
   }
+
+  const addRelatedTask = (task: Task) => {
+    if (!selectedRelatedTasks.find(t => t.id === task.id)) {
+      setSelectedRelatedTasks([...selectedRelatedTasks, task])
+    }
+    setRelatedTaskSearch('')
+  }
+
+  const removeRelatedTask = (taskId: string) => {
+    setSelectedRelatedTasks(selectedRelatedTasks.filter(t => t.id !== taskId))
+  }
+
+  const filteredRelatedTasks = tasks.filter(t =>
+    t.title.toLowerCase().includes(relatedTaskSearch.toLowerCase()) &&
+    !selectedRelatedTasks.find(s => s.id === t.id)
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -188,6 +221,49 @@ export function ReportCreateModal({
                     </Select>
                   </div>
                 )}
+
+                {/* Related Tasks */}
+                <div className="space-y-2">
+                  <Label>연관된 업무</Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="업무 제목 검색"
+                      value={relatedTaskSearch}
+                      onChange={(e) => setRelatedTaskSearch(e.target.value)}
+                    />
+                    {relatedTaskSearch && filteredRelatedTasks.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
+                        {filteredRelatedTasks.map(task => (
+                          <button
+                            key={task.id}
+                            type="button"
+                            onClick={() => addRelatedTask(task)}
+                            className="w-full px-3 py-2 text-left hover:bg-accent text-sm border-b border-border last:border-b-0"
+                          >
+                            <div className="font-medium">{task.title}</div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {task.category} · {task.service} · {task.status}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedRelatedTasks.map(task => (
+                      <Badge key={task.id} variant="outline" className="gap-1 pr-1">
+                        {task.title}
+                        <button
+                          type="button"
+                          onClick={() => removeRelatedTask(task.id)}
+                          className="ml-1 rounded-sm hover:bg-accent"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="rounded-md bg-muted p-4">
                   <h4 className="text-sm font-medium mb-2">작성 가이드</h4>
