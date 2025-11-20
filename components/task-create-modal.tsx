@@ -278,7 +278,7 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
           <div className="space-y-2">
             <Label>담당자</Label>
             <div className="max-h-32 space-y-2 overflow-y-auto rounded-md border border-input p-3">
-              {users.map((user) => (
+              {users.filter(user => user.role !== 'VISITOR').map((user) => (
                 <div key={user.id} className="flex items-center space-x-2">
                   <Checkbox
                     id={`assignee-${user.id}`}
@@ -296,7 +296,7 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
           <div className="space-y-2">
             <Label>참조 (CC)</Label>
             <div className="max-h-32 space-y-2 overflow-y-auto rounded-md border border-input p-3">
-              {users.map((user) => (
+              {users.filter(user => user.role !== 'VISITOR').map((user) => (
                 <div key={user.id} className="flex items-center space-x-2">
                   <Checkbox
                     id={`cc-${user.id}`}
