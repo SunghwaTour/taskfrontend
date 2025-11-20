@@ -69,6 +69,12 @@ export function TaskCreateModal({ open, onOpenChange, onTaskCreated }: TaskCreat
 
     if (!currentUser) return
 
+    console.log('=== TASK CREATE DEBUG ===')
+    console.log('Content length:', content.length)
+    console.log('Content preview:', content.substring(0, 100))
+    console.log('Title:', title)
+    console.log('========================')
+
     setUploading(true)
     try {
       const newTask = await addTask({

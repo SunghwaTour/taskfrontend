@@ -47,7 +47,9 @@ export function RichTextEditor({ content, onChange, placeholder = '내용을 입
     ],
     content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML())
+      const html = editor.getHTML()
+      console.log('Editor content updated:', html.substring(0, 50))
+      onChange(html)
     },
     editorProps: {
       attributes: {

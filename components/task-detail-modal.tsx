@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Task, Comment, User as UserType, Approval } from '@/lib/types'
-import { getCurrentUser, getUsers, updateTask, getTasks, getApprovals, deleteTask, uploadTaskFile, deleteTaskFile } from '@/lib/storage'
+import { getCurrentUser, getUsers, updateTask, getTasks, getApprovals, deleteTask, uploadTaskFile, deleteTaskFile, addTaskComment } from '@/lib/storage'
 
 interface TaskDetailModalProps {
   task: Task | null
@@ -93,22 +93,18 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
   const handleAddComment = async () => {
     if (!commentContent.trim() || !currentUser) return
 
-    const newComment: Comment = {
-      id: Date.now().toString(),
-      content: commentContent,
-      createdBy: currentUser.id,
-      createdAt: new Date().toISOString(),
-    }
-
     try {
-      await updateTask(task.id, {
-        comments: [...task.comments, newComment],
-      })
+      const success = await addTaskComment(task.id, commentContent)
 
-      setCommentContent('')
-      onTaskUpdated?.()
+      if (success) {
+        setCommentContent('')
+        onTaskUpdated?.()
+      } else {
+        alert('댓글 작성에 실패했습니다.')
+      }
     } catch (error) {
       console.error('Failed to add comment:', error)
+      alert('댓글 작성 중 오류가 발생했습니다.')
     }
   }
 
