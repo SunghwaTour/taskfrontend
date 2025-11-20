@@ -152,7 +152,7 @@ export function ReportCreateModal({
                       <SelectContent>
                         {availableWeeks.map((week) => (
                           <SelectItem
-                            key={week.value}
+                            key={`${week.year}-W${week.weekNumber}`}
                             value={`${week.year}-W${week.weekNumber}`}
                           >
                             {week.label}
@@ -178,7 +178,7 @@ export function ReportCreateModal({
                       <SelectContent>
                         {availableMonths.map((month) => (
                           <SelectItem
-                            key={month.value}
+                            key={`${month.year}-${month.month}`}
                             value={`${month.year}-${month.month}`}
                           >
                             {month.label}
