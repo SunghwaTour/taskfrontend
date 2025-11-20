@@ -98,6 +98,14 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
 
       if (success) {
         setCommentContent('')
+
+        // Refresh the task to get updated comments
+        const { getTask } = await import('@/lib/storage')
+        const updatedTask = await getTask(task.id)
+        if (updatedTask) {
+          setCurrentTask(updatedTask)
+        }
+
         onTaskUpdated?.()
       } else {
         alert('댓글 작성에 실패했습니다.')
@@ -519,11 +527,11 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
           <div>
             <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
               <MessageSquare className="h-4 w-4" />
-              댓글 ({task.comments?.length || 0})
+              댓글 ({currentTask.comments?.length || 0})
             </h3>
 
             <div className="space-y-4">
-              {task.comments?.map((comment) => (
+              {currentTask.comments?.map((comment) => (
                 <div key={comment.id} className="rounded-md border border-border bg-card p-4">
                   <div className="mb-2 flex items-center justify-between">
                     <span className="font-medium text-sm">{getUserName(comment.createdBy)}</span>
