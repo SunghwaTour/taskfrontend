@@ -347,10 +347,15 @@ export async function getTask(taskId: string): Promise<Task | null> {
     console.log('getTask called with taskId:', taskId);
     const task = await apiClient.get<TaskAPIResponse>(`/tasks/${taskId}/`);
     console.log('getTask API response:', task);
+    console.log('getTask API response content:', task.content);
+    console.log('getTask API response content length:', task.content?.length);
+    console.log('getTask API response assignees:', task.assignees);
+    console.log('getTask API response cc:', task.cc);
     console.log('getTask API response files:', task.files);
     // Transform API response to frontend Task type
     const transformed = transformTaskAPIResponse(task);
     console.log('getTask transformed:', transformed);
+    console.log('getTask transformed content:', transformed.content);
     console.log('getTask transformed files:', transformed.files);
     return transformed;
   } catch (error) {
