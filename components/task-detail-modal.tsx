@@ -315,8 +315,8 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
           <div>
             <h3 className="mb-2 text-sm font-semibold">담당자</h3>
             <div className="flex flex-wrap gap-2">
-              {task.assignees && task.assignees.length > 0 ? (
-                task.assignees.map((userId) => (
+              {currentTask.assignees && currentTask.assignees.length > 0 ? (
+                currentTask.assignees.map((userId) => (
                   <Badge key={userId} variant="secondary">
                     {getUserName(userId)}
                   </Badge>
@@ -330,8 +330,8 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
           <div>
             <h3 className="mb-2 text-sm font-semibold">참조 (CC)</h3>
             <div className="flex flex-wrap gap-2">
-              {task.cc && task.cc.length > 0 ? (
-                task.cc.map((userId) => (
+              {currentTask.cc && currentTask.cc.length > 0 ? (
+                currentTask.cc.map((userId) => (
                   <Badge key={userId} variant="outline">
                     {getUserName(userId)}
                   </Badge>
@@ -354,7 +354,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
             ) : (
               <div
                 className="prose prose-sm max-w-none rounded-md bg-muted p-4 min-h-[100px]"
-                dangerouslySetInnerHTML={{ __html: task.content || '<p class="text-muted-foreground">내용 없음</p>' }}
+                dangerouslySetInnerHTML={{ __html: currentTask.content || '<p class="text-muted-foreground">내용 없음</p>' }}
               />
             )}
           </div>
