@@ -3,7 +3,7 @@
  * These types match the Django backend API responses
  */
 
-import type { User, Task, Approval, Report, Announcement, Service, Comment, TaskFile } from './types';
+import type { User, Task, Approval, Report, Announcement, Comment, TaskFile } from './types';
 
 // API Response types (what the backend actually returns)
 export interface TaskFileAPIResponse {

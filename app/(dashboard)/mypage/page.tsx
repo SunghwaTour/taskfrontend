@@ -38,10 +38,10 @@ export default function MyPage() {
   const [taskModalOpen, setTaskModalOpen] = useState(false)
   const [approvalModalOpen, setApprovalModalOpen] = useState(false)
   const [reportModalOpen, setReportModalOpen] = useState(false)
+  const [users, setUsers] = useState<UserType[]>([])
+  const [allTasks, setAllTasks] = useState<Task[]>([])
 
   const router = useRouter()
-  const users = getUsers()
-  const allTasks = getTasks()
 
   useEffect(() => {
     const user = getCurrentUser()
@@ -56,16 +56,20 @@ export default function MyPage() {
     if (!currentUser) return
 
     const loadData = async () => {
-      const [allTasks, allApprovals, allReports] = await Promise.all([
+      const [tasksList, allApprovals, allReports, usersList] = await Promise.all([
         getTasks(),
         getApprovals(),
         getReports(),
+        getUsers(),
       ])
 
-      const createdTasks = allTasks.filter((task) => task.createdBy === currentUser.id)
+      setAllTasks(tasksList)
+      setUsers(usersList)
+
+      const createdTasks = tasksList.filter((task) => task.createdBy === currentUser.id)
       setMyTasks(createdTasks)
 
-      const ccedTasks = allTasks.filter((task) => task.cc.includes(currentUser.id))
+      const ccedTasks = tasksList.filter((task) => task.cc.includes(currentUser.id))
       setCCTasks(ccedTasks)
 
       const userReports = allReports.filter((report) => report.createdBy === currentUser.id)
@@ -99,16 +103,20 @@ export default function MyPage() {
   const refreshData = async () => {
     if (!currentUser) return
 
-    const [allTasks, allApprovals, allReports] = await Promise.all([
+    const [tasksList, allApprovals, allReports, usersList] = await Promise.all([
       getTasks(),
       getApprovals(),
       getReports(),
+      getUsers(),
     ])
 
-    const createdTasks = allTasks.filter((task) => task.createdBy === currentUser.id)
+    setAllTasks(tasksList)
+    setUsers(usersList)
+
+    const createdTasks = tasksList.filter((task) => task.createdBy === currentUser.id)
     setMyTasks(createdTasks)
 
-    const ccedTasks = allTasks.filter((task) => task.cc.includes(currentUser.id))
+    const ccedTasks = tasksList.filter((task) => task.cc.includes(currentUser.id))
     setCCTasks(ccedTasks)
 
     const userReports = allReports.filter((report) => report.createdBy === currentUser.id)

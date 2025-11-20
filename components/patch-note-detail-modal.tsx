@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { PatchNote, User as UserType, Task, Approval } from '@/lib/types'
-import { getUsers, getTasks, getApprovals, deletePatchNote, updatePatchNote, getCurrentUser } from '@/lib/storage'
+import { getUsers, getTasks, getApprovals, getCurrentUser } from '@/lib/storage'
 import { Package, Calendar, User, Trash2, Edit2 } from 'lucide-react'
 
 interface PatchNoteDetailModalProps {
@@ -72,16 +72,13 @@ export function PatchNoteDetailModal({
     if (!editedPatchNote) return
 
     try {
-      await updatePatchNote(patchNote.id, {
-        title: editedPatchNote.title,
-        version: editedPatchNote.version,
-        deadline: editedPatchNote.deadline,
-        items: editedPatchNote.items,
-      })
+      // TODO: Implement updatePatchNote API
+      console.log('Update patch note:', editedPatchNote)
+      alert('패치노트 수정 기능은 아직 구현되지 않았습니다.')
 
       setIsEditing(false)
       setEditedPatchNote(null)
-      onPatchNoteUpdated?.()
+      // onPatchNoteUpdated?.()
     } catch (error) {
       console.error('Failed to update patch note:', error)
     }
@@ -96,9 +93,12 @@ export function PatchNoteDetailModal({
     if (!confirm('이 패치노트를 삭제하시겠습니까?')) return
 
     try {
-      await deletePatchNote(patchNote.id)
-      onOpenChange(false)
-      onPatchNoteUpdated?.()
+      // TODO: Implement deletePatchNote API
+      console.log('Delete patch note:', patchNote.id)
+      alert('패치노트 삭제 기능은 아직 구현되지 않았습니다.')
+
+      // onOpenChange(false)
+      // onPatchNoteUpdated?.()
     } catch (error) {
       console.error('Failed to delete patch note:', error)
     }

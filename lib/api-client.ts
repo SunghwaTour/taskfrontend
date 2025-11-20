@@ -62,8 +62,8 @@ async function apiRequest<T = any>(
   }
 
   // Set headers
-  const headers: HeadersInit = {
-    ...fetchOptions.headers,
+  const headers: Record<string, string> = {
+    ...(fetchOptions.headers as Record<string, string>),
   };
 
   // Add auth token if not skipped
@@ -110,7 +110,7 @@ async function apiRequest<T = any>(
             });
 
             if (retryResponse.ok) {
-              return retryResponse.status === 204 ? null : await retryResponse.json();
+              return (retryResponse.status === 204 ? null : await retryResponse.json()) as T;
             }
           }
         } catch (refreshError) {

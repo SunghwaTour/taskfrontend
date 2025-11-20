@@ -88,17 +88,17 @@ function transformApprovalAPIResponse(apiApproval: ApprovalAPIResponse): Approva
     summary: apiApproval.summary,
     links: apiApproval.links || [],
     status: apiApproval.status as any,
-    teamLeaderComment: apiApproval.team_leader_comment,
-    teamLeaderApprovedAt: apiApproval.team_leader_approved_at,
+    teamLeaderComment: apiApproval.team_leader_comment || undefined,
+    teamLeaderApprovedAt: apiApproval.team_leader_approved_at || undefined,
     teamLeaderApprovedBy: apiApproval.team_leader_approved_by ?
       (typeof apiApproval.team_leader_approved_by === 'object' ? apiApproval.team_leader_approved_by.id : apiApproval.team_leader_approved_by as any) :
       undefined,
-    ceoComment: apiApproval.ceo_comment,
-    ceoApprovedAt: apiApproval.ceo_approved_at,
+    ceoComment: apiApproval.ceo_comment || undefined,
+    ceoApprovedAt: apiApproval.ceo_approved_at || undefined,
     ceoApprovedBy: apiApproval.ceo_approved_by ?
       (typeof apiApproval.ceo_approved_by === 'object' ? apiApproval.ceo_approved_by.id : apiApproval.ceo_approved_by as any) :
       undefined,
-    rejectionReason: apiApproval.rejection_reason,
+    rejectionReason: apiApproval.rejection_reason || undefined,
     nextTasks: apiApproval.next_tasks?.map(t => typeof t === 'object' ? t.id : t as any) || [],
     comments: apiApproval.comments?.map(c => ({
       id: c.id,

@@ -238,7 +238,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
   }
 
   const hasApproval = allApprovals.some((a) => a.taskId === task.id)
-  const isTaskCompleted = task.status === '완료'
+  const isTaskCompleted = currentTask.status === 'DONE'
   
   const isAuthor = currentUser?.id === task.createdBy
   
