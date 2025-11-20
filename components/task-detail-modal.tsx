@@ -316,50 +316,52 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
             )}
           </div>
 
-          {task.assignees && task.assignees.length > 0 && (
-            <div>
-              <h3 className="mb-2 text-sm font-semibold">담당자</h3>
-              <div className="flex flex-wrap gap-2">
-                {task.assignees.map((userId) => (
+          <div>
+            <h3 className="mb-2 text-sm font-semibold">담당자</h3>
+            <div className="flex flex-wrap gap-2">
+              {task.assignees && task.assignees.length > 0 ? (
+                task.assignees.map((userId) => (
                   <Badge key={userId} variant="secondary">
                     {getUserName(userId)}
                   </Badge>
-                ))}
-              </div>
+                ))
+              ) : (
+                <span className="text-sm text-muted-foreground">지정된 담당자 없음</span>
+              )}
             </div>
-          )}
+          </div>
 
-          {task.cc && task.cc.length > 0 && (
-            <div>
-              <h3 className="mb-2 text-sm font-semibold">참조 (CC)</h3>
-              <div className="flex flex-wrap gap-2">
-                {task.cc.map((userId) => (
+          <div>
+            <h3 className="mb-2 text-sm font-semibold">참조 (CC)</h3>
+            <div className="flex flex-wrap gap-2">
+              {task.cc && task.cc.length > 0 ? (
+                task.cc.map((userId) => (
                   <Badge key={userId} variant="outline">
                     {getUserName(userId)}
                   </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {task.content && (
-            <div>
-              <h3 className="mb-2 text-sm font-semibold">내용</h3>
-              {isEditing ? (
-                <Textarea
-                  value={editedTask?.content || ''}
-                  onChange={(e) => setEditedTask(prev => prev ? { ...prev, content: e.target.value } : null)}
-                  rows={6}
-                  className="font-mono text-sm"
-                />
+                ))
               ) : (
-                <div
-                  className="prose prose-sm max-w-none rounded-md bg-muted p-4"
-                  dangerouslySetInnerHTML={{ __html: task.content }}
-                />
+                <span className="text-sm text-muted-foreground">지정된 참조자 없음</span>
               )}
             </div>
-          )}
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-sm font-semibold">내용</h3>
+            {isEditing ? (
+              <Textarea
+                value={editedTask?.content || ''}
+                onChange={(e) => setEditedTask(prev => prev ? { ...prev, content: e.target.value } : null)}
+                rows={6}
+                className="font-mono text-sm"
+              />
+            ) : (
+              <div
+                className="prose prose-sm max-w-none rounded-md bg-muted p-4 min-h-[100px]"
+                dangerouslySetInnerHTML={{ __html: task.content || '<p class="text-muted-foreground">내용 없음</p>' }}
+              />
+            )}
+          </div>
 
           {relatedTasks.length > 0 && (
             <div>
