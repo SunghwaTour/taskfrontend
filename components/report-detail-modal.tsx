@@ -15,6 +15,7 @@ import { getUsers, getTasks, deleteReport, updateReport, getCurrentUser } from '
 import { formatWeekLabel } from '@/lib/utils/date'
 import { FileText, Calendar, User, Trash2, Edit2 } from 'lucide-react'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
+import DOMPurify from 'dompurify'
 import { TaskDetailModal } from '@/components/task-detail-modal'
 
 interface ReportDetailModalProps {
@@ -175,7 +176,7 @@ export function ReportDetailModal({ report, open, onOpenChange, onReportUpdated,
             ) : (
               <div
                 className="prose prose-sm max-w-none rounded-md bg-muted p-4"
-                dangerouslySetInnerHTML={{ __html: report.content }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(report.content) }}
               />
             )}
           </div>

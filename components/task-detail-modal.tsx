@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Clock, User, MessageSquare, X, Link2, Trash2, Edit2, Upload, Download } from 'lucide-react'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
+import DOMPurify from 'dompurify'
 import {
   Dialog,
   DialogContent,
@@ -427,7 +428,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
             ) : (
               <div
                 className="prose prose-sm max-w-none rounded-md bg-muted p-4 min-h-[100px]"
-                dangerouslySetInnerHTML={{ __html: currentTask.content || '<p class="text-muted-foreground">내용 없음</p>' }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentTask.content || '<p class="text-muted-foreground">내용 없음</p>') }}
               />
             )}
           </div>
