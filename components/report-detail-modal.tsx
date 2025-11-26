@@ -10,11 +10,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Textarea } from '@/components/ui/textarea'
 import { Report, User as UserType, Task } from '@/lib/types'
 import { getUsers, getTasks, deleteReport, updateReport, getCurrentUser } from '@/lib/storage'
 import { formatWeekLabel } from '@/lib/utils/date'
 import { FileText, Calendar, User, Trash2, Edit2 } from 'lucide-react'
+import { RichTextEditor } from '@/components/ui/rich-text-editor'
 import { TaskDetailModal } from '@/components/task-detail-modal'
 
 interface ReportDetailModalProps {
@@ -167,11 +167,10 @@ export function ReportDetailModal({ report, open, onOpenChange, onReportUpdated,
           <div>
             <h3 className="mb-2 text-sm font-semibold">내용</h3>
             {isEditing ? (
-              <Textarea
-                value={editedContent}
-                onChange={(e) => setEditedContent(e.target.value)}
-                rows={10}
-                className="font-mono text-sm"
+              <RichTextEditor
+                content={editedContent}
+                onChange={setEditedContent}
+                placeholder="보고서 내용을 입력하세요..."
               />
             ) : (
               <div

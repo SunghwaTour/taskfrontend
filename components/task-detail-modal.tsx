@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Clock, User, MessageSquare, X, Link2, Trash2, Edit2, Upload, Download } from 'lucide-react'
+import { RichTextEditor } from '@/components/ui/rich-text-editor'
 import {
   Dialog,
   DialogContent,
@@ -418,11 +419,10 @@ export function TaskDetailModal({ task, open, onOpenChange, onTaskUpdated, onTas
           <div>
             <h3 className="mb-2 text-sm font-semibold">내용</h3>
             {isEditing ? (
-              <Textarea
-                value={editedTask?.content || ''}
-                onChange={(e) => setEditedTask(prev => prev ? { ...prev, content: e.target.value } : null)}
-                rows={6}
-                className="font-mono text-sm"
+              <RichTextEditor
+                content={editedTask?.content || ''}
+                onChange={(newContent) => setEditedTask(prev => prev ? { ...prev, content: newContent } : null)}
+                placeholder="내용을 입력하세요..."
               />
             ) : (
               <div
