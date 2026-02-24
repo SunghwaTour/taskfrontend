@@ -171,27 +171,12 @@ function transformAnnouncementAPIResponse(apiAnnouncement: AnnouncementAPIRespon
 
 export async function login(userId: string, password: string): Promise<User | null> {
   try {
-    // Step 1: Authenticate with TRP API
-    const { trpLogin } = await import('./trp-client');
-    const trpResult = await trpLogin(userId, password);
-
-    if (!trpResult) {
-      console.error('TRP login failed');
-      return null;
-    }
-
-    const { user: trpUser, accessToken: trpAccessToken, refreshToken: trpRefreshToken } = trpResult;
-
-    // Step 2: Authenticate with Kingbus Backend (role mapping)
+    // Authenticate via Kingbus backend (which calls TRP API server-side)
     const response = await apiClient.post<LoginResponse>(
       '/auth/trp-login/',
       {
         user_id: userId,
         password: password,
-        trp_access_token: trpAccessToken,
-        trp_refresh_token: trpRefreshToken,
-        trp_user_name: trpUser.name,
-        trp_user_role: trpUser.role,
       },
       true // skip auth
     );
@@ -200,9 +185,6 @@ export async function login(userId: string, password: string): Promise<User | nu
     setTokens(response.access, response.refresh);
     if (typeof window !== 'undefined') {
       localStorage.setItem('kingbus_current_user', JSON.stringify(response.user));
-      // Also store TRP tokens for future use (optional)
-      localStorage.setItem('trp_access_token', trpAccessToken);
-      localStorage.setItem('trp_refresh_token', trpRefreshToken);
     }
 
     return response.user;
